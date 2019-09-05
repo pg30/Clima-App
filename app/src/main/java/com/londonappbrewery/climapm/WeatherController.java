@@ -159,6 +159,7 @@ public class WeatherController extends AppCompatActivity {
                 Log.d("Clima","Success! JSON : "+response.toString());
                 //paste the JSON response on jsonmate.com to understand the fields and hierarchies
                 WeatherDataModel weatherData = WeatherDataModel.fromJSON(response);
+                updateUI(weatherData);
             }
             @Override
             public void onFailure(int StatusCode, Header[] headers,Throwable e,JSONObject response)
@@ -172,7 +173,13 @@ public class WeatherController extends AppCompatActivity {
 
 
     // TODO: Add updateUI() here:
-
+    private void updateUI(WeatherDataModel weatherData)
+    {
+        mTemperatureLabel.setText(weatherData.getTemperature());
+        mCityLabel.setText(weatherData.getCity());
+        int resourceId = getResources().getIdentifier(weatherData.getIconName(),"drawable",getPackageName());
+        mWeatherImage.setImageResource(resourceId);
+    }
 
 
     // TODO: Add onPause() here:
