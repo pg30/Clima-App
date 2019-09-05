@@ -2,6 +2,7 @@ package com.londonappbrewery.climapm;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -11,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -64,7 +66,14 @@ public class WeatherController extends AppCompatActivity {
 
 
         // TODO: Add an OnClickListener to the changeCityButton here:
-
+        //navigation between activities is done using Intent in android
+        changeCityButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myIntent = new Intent(WeatherController.this,ChangeCityController.class);
+                startActivity(myIntent);
+            }
+        });
     }
 
 
@@ -75,12 +84,24 @@ public class WeatherController extends AppCompatActivity {
         super.onResume();
         Log.d("Clima", "OnResume() Called");
         Log.d("Clima", "Getting Weather for current location");
-        getWeatherForCurrentLocation();
+        //check if we have a new city name from the intent we created in the other class and make the corresponding API call
+        Intent myIntent = getIntent();
+        String City  = myIntent.getStringExtra("City");
+        if(City==null)
+            getWeatherForCurrentLocation();
+        else
+            getWeatherForNewCity(City);
     }
 
-
     // TODO: Add getWeatherForNewCity(String city) here:
+    private void getWeatherForNewCity(String city)
+    {
+        RequestParams params = new RequestParams();
+        params.put("q",city);
+        params.put("appid",APP_ID);
+        letsDoSomeNetworking(params);
 
+    }
 
     // TODO: Add getWeatherForCurrentLocation() here:
     private void getWeatherForCurrentLocation() {
@@ -183,7 +204,11 @@ public class WeatherController extends AppCompatActivity {
 
 
     // TODO: Add onPause() here:
+//Note : It is important to free up resources at the time app is being exited so that it does not consumes battery. This should be done in the onPause() method.
 
-
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(mLocationManager!=null) mLocationManager.removeUpdates(mLocationListener);
+    }
 }
